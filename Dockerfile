@@ -12,7 +12,7 @@ WORKDIR /app
 
 # Dependency layer first so code edits don't invalidate the (large) install
 COPY pyproject.toml uv.lock ./
-RUN --mount=type=cache,id=uv-cache,target=/root/.cache/uv uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev
 
 COPY app ./app
 COPY static ./static
@@ -21,3 +21,5 @@ COPY static ./static
 # downloads it automatically on first inference call, and app/pipeline.py
 # will auto-prefer a '<stem>_openvino_model' export next to it if one is
 # ever added. First request after a cold start will be a few seconds slower
+# while the weights download.
+RUN mkdir -p uploads ou
