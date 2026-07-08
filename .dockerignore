@@ -1,0 +1,12 @@
+.git
+.venv
+.claude
+.vscode
+design
+uploads
+outputs
+*.mp4
+__pycache__
+*.pyc
+CLAUDE.md
+README.md

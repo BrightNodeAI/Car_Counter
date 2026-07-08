@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+uploads/*
+outputs/*
+!uploads/.gitkeep
+!outputs/.gitkeep
+*.pt
+*_openvino_model/
+*.mp4
+.claude/settings.local.json
+Design files shared.zip
+design/Design files shared.zip
+final design chnages.png
+design/design_zip_contents/

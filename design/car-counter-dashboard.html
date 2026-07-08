@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bright Node — Car Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0D10;
+    --panel:#14181D;
+    --panel-2:#191E24;
+    --line:#242B32;
+    --gold:#C9A227;
+    --gold-dim:#8A7222;
+    --teal:#4FD1C5;
+    --red:#E5484D;
+    --text:#E8E6E1;
+    --muted:#8B8D93;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    height:100vh;
+    display:flex;
+    overflow:hidden;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .disp{font-family:'Space Grotesk',sans-serif;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:220px;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+  }
+  .brand{
+    padding:22px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand-mark{
+    width:26px;height:26px;
+    border:2px solid var(--gold);
+    border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold);
+    font-weight:700;font-size:13px;
+  }
+  .brand-name{font-family:'Space Grotesk';font-weight:600;font-size:15px;letter-spacing:0.3px;}
+  .brand-name span{color:var(--gold);}
+
+  .nav-section{padding:18px 14px;}
+  .nav-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:0 8px 8px;}
+  .job-item{
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:13px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    margin-bottom:2px;
+  }
+  .job-item.active{background:var(--panel-2);color:var(--text);border-left:2px solid var(--gold);}
+  .job-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+  .job-dot.idle{background:var(--muted);}
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding:16px 20px;
+    border-top:1px solid var(--line);
+    font-size:11px;
+    color:var(--muted);
+  }
+
+  /* MAIN */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{
+    height:56px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 24px;
+    flex-shrink:0;
+  }
+  .topbar-title{font-family:'Space Grotesk';font-size:15px;font-weight:600;}
+  .topbar-sub{font-size:12px;color:var(--muted);margin-left:10px;}
+  .status-pill{
+    display:flex;align-items:center;gap:6px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:5px 12px;
+    font-size:12px;
+    color:var(--teal);
+  }
+  .status-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);}
+
+  .content{flex:1;display:flex;overflow:hidden;}
+
+  /* FEED */
+  .feed-area{flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;min-width:0;}
+  .feed-frame{
+    flex:1;
+    background:#000;
+    border-radius:10px;
+    border:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+    background-image:
+      linear-gradient(135deg,#1a1f26 0%,#0d1013 60%,#08090b 100%);
+  }
+  .feed-frame::before{
+    content:"";
+    position:absolute;inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 40px);
+  }
+  .road{
+    position:absolute;
+    left:8%;right:8%;top:20%;bottom:10%;
+    background:linear-gradient(180deg, rgba(40,45,52,0.6), rgba(20,23,27,0.9));
+    clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  }
+  .lane-line{
+    position:absolute;
+    top:20%;bottom:10%;left:50%;
+    width:2px;
+    background:repeating-linear-gradient(180deg, rgba(230,220,200,0.5) 0 14px, transparent 14px 26px);
+    transform:translateX(-50%);
+  }
+  .count-line{
+    position:absolute;
+    left:12%;right:12%;
+    top:62%;
+    height:2px;
+    background:var(--gold);
+    box-shadow:0 0 8px var(--gold);
+  }
+  .count-line::after{
+    content:"COUNT LINE";
+    position:absolute;right:0;top:-18px;
+    font-family:'JetBrains Mono';
+    font-size:10px;
+    color:var(--gold);
+    letter-spacing:1px;
+  }
+  .bbox{
+    position:absolute;
+    border:2px solid var(--teal);
+    border-radius:3px;
+  }
+  .bbox .tag{
+    position:absolute;top:-20px;left:0;
+    background:var(--teal);
+    color:#04141f;
+    font-family:'JetBrains Mono';
+    font-size:10px;
+    font-weight:700;
+    padding:1px 6px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .bbox.gold{border-color:var(--gold);}
+  .bbox.gold .tag{background:var(--gold);color:#1a1400;}
+
+  .feed-hud{
+    position:absolute;top:14px;left:14px;
+    display:flex;gap:8px;
+  }
+  .hud-chip{
+    background:rgba(0,0,0,0.55);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:4px 9px;
+    font-family:'JetBrains Mono';
+    font-size:11px;
+    color:var(--muted);
+    backdrop-filter:blur(4px);
+  }
+  .hud-chip.rec{color:var(--red);}
+  .hud-chip.rec .dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--red);margin-right:5px;
+  }
+
+  .feed-controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 16px;
+  }
+  .transport{display:flex;gap:8px;}
+  .btn{
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--text);
+    padding:8px 16px;
+    border-radius:6px;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .btn-primary{background:var(--gold);border-color:var(--gold);color:#1a1400;font-weight:600;}
+  .btn-danger{color:var(--red);border-color:rgba(229,72,77,0.3);}
+  .btn-danger:hover{background:rgba(229,72,77,0.1);}
+  .progress-wrap{flex:1;margin:0 20px;}
+  .progress-bar{
+    height:5px;background:var(--line);border-radius:3px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;width:64%;
+    background:linear-gradient(90deg,var(--gold-dim),var(--gold));
+  }
+  .progress-labels{
+    display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono';font-size:11px;color:var(--muted);margin-top:6px;
+  }
+
+  /* RIGHT RAIL */
+  .rail{
+    width:300px;
+    border-left:1px solid var(--line);
+    background:var(--panel);
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    flex-shrink:0;
+  }
+  .rail-section{padding:18px 20px;border-bottom:1px solid var(--line);}
+  .rail-title{
+    font-size:11px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:1px;margin-bottom:14px;font-weight:600;
+  }
+
+  /* odometer count */
+  .odometer{
+    display:flex;justify-content:center;gap:4px;margin-bottom:6px;
+  }
+  .digit{
+    width:34px;height:46px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono';
+    font-size:26px;font-weight:700;
+    color:var(--gold);
+    position:relative;
+  }
+  .digit::after{
+    content:"";
+    position:absolute;left:0;right:0;top:50%;
+    height:1px;background:rgba(0,0,0,0.4);
+  }
+  .odometer-label{
+    text-align:center;font-size:11px;color:var(--muted);
+    letter-spacing:1px;text-transform:uppercase;
+  }
+
+  .class-breakdown{margin-top:16px;}
+  .class-row{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:13px;padding:7px 0;
+  }
+  .class-name{display:flex;align-items:center;gap:8px;color:var(--text);}
+  .swatch{width:8px;height:8px;border-radius:2px;}
+  .class-count{font-family:'JetBrains Mono';color:var(--muted);font-weight:600;}
+
+  /* sliders */
+  .slider-row{margin-bottom:16px;}
+  .slider-head{
+    display:flex;justify-content:space-between;
+    font-size:12.5px;margin-bottom:8px;
+  }
+  .slider-val{font-family:'JetBrains Mono';color:var(--gold);}
+  input[type=range]{
+    width:100%;height:4px;
+    -webkit-appearance:none;
+    background:var(--line);
+    border-radius:2px;
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--gold);
+    cursor:pointer;
+    border:2px solid #0B0D10;
+    box-shadow:0 0 0 1px var(--gold);
+  }
+  .hint{font-size:11px;color:var(--muted);margin-top:6px;}
+
+  .toggle-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 0;font-size:13px;
+  }
+  .switch{
+    width:34px;height:19px;background:var(--line);border-radius:10px;
+    position:relative;cursor:pointer;flex-shrink:0;
+  }
+  .switch.on{background:var(--gold-dim);}
+  .switch::after{
+    content:"";position:absolute;top:2px;left:2px;
+    width:15px;height:15px;border-radius:50%;background:var(--muted);
+    transition:0.15s;
+  }
+  .switch.on::after{left:17px;background:var(--gold);}
+
+  /* bottom log */
+  .log-strip{
+    height:150px;
+    border-top:1px solid var(--line);
+    background:var(--panel);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+  }
+  .log-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 20px;border-bottom:1px solid var(--line);
+  }
+  .log-head-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+  .log-body{flex:1;overflow-y:auto;font-family:'JetBrains Mono';font-size:12px;}
+  .log-row{
+    display:grid;
+    grid-template-columns:90px 70px 100px 1fr;
+    padding:6px 20px;
+    color:var(--muted);
+    border-bottom:1px solid rgba(255,255,255,0.03);
+  }
+  .log-row .t{color:var(--muted);}
+  .log-row .cls{color:var(--teal);}
+  .log-row .id{color:var(--text);}
+  .log-row .ev{color:var(--gold-dim);}
+  .log-row:hover{background:rgba(255,255,255,0.02);}
+</style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-name">Bright<span>Node</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Jobs</div>
+      <div class="job-item active"><span>Highway_North_Cam3</span><span class="job-dot"></span></div>
+      <div class="job-item"><span>Intersection_5th_Ave</span><span class="job-dot idle"></span></div>
+      <div class="job-item"><span>Depot_Entrance</span><span class="job-dot idle"></span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Library</div>
+      <div class="job-item"><span>Uploaded clips</span></div>
+      <div class="job-item"><span>Export history</span></div>
+    </div>
+    <div class="sidebar-footer">v0.9.3 · CPU inference<br>YOLOv8n + ByteTrack</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;">
+        <span class="topbar-title">Highway_North_Cam3</span>
+        <span class="topbar-sub">1920×1080 · 25fps source</span>
+      </div>
+      <div class="status-pill"><span class="dot"></span>Running</div>
+    </div>
+
+    <div class="content">
+      <div class="feed-area">
+        <div class="feed-frame">
+          <div class="feed-hud">
+            <div class="hud-chip rec"><span class="dot"></span>LIVE</div>
+            <div class="hud-chip">imgsz 1536</div>
+            <div class="hud-chip">14.2 fps</div>
+          </div>
+          <div class="road"></div>
+          <div class="lane-line"></div>
+          <div class="count-line"></div>
+
+          <div class="bbox" style="left:38%;top:34%;width:80px;height:52px;">
+            <div class="tag">car · 0.91</div>
+          </div>
+          <div class="bbox gold" style="left:56%;top:46%;width:96px;height:60px;">
+            <div class="tag">truck · 0.87</div>
+          </div>
+          <div class="bbox" style="left:30%;top:58%;width:70px;height:44px;">
+            <div class="tag">car · 0.94</div>
+          </div>
+        </div>
+
+        <div class="feed-controls">
+          <div class="transport">
+            <button class="btn btn-primary">⏸ Pause</button>
+            <button class="btn btn-danger">⏹ Cancel job</button>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="progress-labels">
+              <span>04:12 elapsed</span>
+              <span>partial results saved on cancel</span>
+              <span>06:30 est.</span>
+            </div>
+          </div>
+          <button class="btn">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="rail-section">
+          <div class="rail-title">Total Count</div>
+          <div class="odometer">
+            <div class="digit">0</div>
+            <div class="digit">1</div>
+            <div class="digit">4</div>
+            <div class="digit">7</div>
+          </div>
+          <div class="odometer-label">vehicles crossed line</div>
+
+          <div class="class-breakdown">
+            <div class="class-row">
+              <div class="class-name"><span class="swatch" style="background:var(--teal);"></span>Car</div>
+              <div class="class-count">096</div>
+            </div>
+            <div class="class-row">
+              <div class="class-name"><span class="swatch" style="background:var(--gold);"></span>Truck</div>
+              <div class="class-count">028</div>
+            </div>
+            <div class="class-row">
+              <div class="class-name"><span class="swatch" style="background:#9B8CE0;"></span>Bus</div>
+              <div class="class-count">011</div>
+            </div>
+            <div class="class-row">
+              <div class="class-name"><span class="swatch" style="background:var(--muted);"></span>Motorcycle</div>
+              <div class="class-count">012</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rail-section">
+          <div class="rail-title">Detection Controls</div>
+
+          <div class="slider-row">
+            <div class="slider-head"><span>Confidence threshold</span><span class="slider-val">0.45</span></div>
+            <input type="range" min="0" max="100" value="45">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-head"><span>IoU threshold</span><span class="slider-val">0.50</span></div>
+            <input type="range" min="0" max="100" value="50">
+          </div>
+
+          <div class="slider-row">
+            <div class="slider-head"><span>Count line position</span><span class="slider-val">62%</span></div>
+            <input type="range" min="0" max="100" value="62">
+            <div class="hint">Vertical position of crossing line, top to bottom</div>
+          </div>
+
+          <div class="toggle-row">
+            <span>Show bounding boxes</span>
+            <div class="switch on"></div>
+          </div>
+          <div class="toggle-row">
+            <span>Show track IDs</span>
+            <div class="switch on"></div>
+          </div>
+          <div class="toggle-row">
+            <span>Direction split (in/out)</span>
+            <div class="switch"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-strip">
+      <div class="log-head">
+        <span class="log-head-title">Event Log</span>
+        <span style="font-size:11px;color:var(--muted);">147 events</span>
+      </div>
+      <div class="log-body">
+        <div class="log-row"><span class="t">00:04:11</span><span class="cls">car</span><span class="id">track #147</span><span class="ev">crossed line, southbound</span></div>
+        <div class="log-row"><span class="t">00:04:08</span><span class="cls">truck</span><span class="id">track #146</span><span class="ev">crossed line, southbound</span></div>
+        <div class="log-row"><span class="t">00:04:02</span><span class="cls">car</span><span class="id">track #145</span><span class="ev">crossed line, northbound</span></div>
+        <div class="log-row"><span class="t">00:03:57</span><span class="cls">motorcycle</span><span class="id">track #144</span><span class="ev">crossed line, southbound</span></div>
+        <div class="log-row"><span class="t">00:03:49</span><span class="cls">car</span><span class="id">track #143</span><span class="ev">crossed line, southbound</span></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

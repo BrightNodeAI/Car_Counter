@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrightNode — Car Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <nav class="tabs">
+      <div class="side-section-title">Workspace</div>
+      <button class="tab-btn active" data-tab="upload"><span class="dot"></span>Upload &amp; Process</button>
+      <button class="tab-btn" data-tab="live"><span class="dot"></span>Live Feed</button>
+      <button class="tab-btn" data-tab="archive"><span class="dot"></span>Job Archive</button>
+    </nav>
+
+    <div>
+      <div class="side-section-title">Recent jobs</div>
+      <div class="job-history" id="jobHistory">
+        <div class="empty-note">Processed videos will appear here.</div>
+      </div>
+    </div>
+
+    <div class="brand brand-bottom">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="name">BrightNode</div>
+        <div class="tagline">CAR COUNTING · VIDEO ANALYTICS</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">BRIGHTNODE / CAR-COUNTER-APP<br>Powered by YOLOv8 + ByteTrack</div>
+  </aside>
+
+  <!-- ── Main ────────────────────────────────────────────────── -->
+  <main>
+    <div class="theme-switcher" id="themeSwitcher"></div>
+
+    <!-- Upload view -->
+    <section class="view active" id="view-upload">
+      <div class="hero">
+        <div class="hero-top">
+          <div>
+            <h1>Line-crossing vehicle counter</h1>
+            <p>Upload traffic footage and the pipeline detects, tracks, and tallies every car, truck, and bus that crosses your counting line.</p>
+          </div>
+          <div class="hero-counters">
+            <div class="count-pill in"><span class="lbl">IN</span><span class="val" id="heroIn">0</span></div>
+            <div class="count-pill out"><span class="lbl">OUT</span><span class="val" id="heroOut">0</span></div>
+          </div>
+        </div>
+        <div class="scanline-track"></div>
+        <div class="scanline-caption"><span>FRAME 0000</span><span>COUNTING LINE ACTIVE</span></div>
+      </div>
+
+      <div class="grid">
+        <!-- Config card -->
+        <div class="card">
+          <h2><span class="eyebrow">01</span>Source video</h2>
+
+          <form id="uploadForm">
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="fileInput" accept=".mp4,.mov,.avi,.mkv,.webm">
+              <div class="icon">▤</div>
+              <div class="main-txt">Drop a video or click to browse</div>
+              <div class="sub-txt">MP4, MOV, AVI, MKV, WEBM</div>
+            </div>
+            <div class="file-chip" id="fileChip">
+              <span id="fileChipName">—</span>
+              <span class="x" id="fileChipClear">✕</span>
+            </div>
+
+            <div class="field">
+              <label for="confRange">Detection confidence</label>
+              <div class="range-row">
+                <input type="range" id="confRange" min="0.1" max="0.9" step="0.05" value="0.4">
+                <span class="range-val" id="confVal">0.40</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="durationRange">Duration</label>
+              <div class="range-row">
+                <input type="range" id="durationRange" min="1" max="1" step="1" value="1" disabled>
+                <span class="range-val" id="durationVal">—</span>
+              </div>
+              <div class="hint" id="durationHint">Select a video to set this.</div>
+            </div>
+
+            <div class="field">
+              <label for="lineLengthRange">Counting line length</label>
+              <div class="range-row">
+                <input type="range" id="lineLengthRange" min="0.1" max="1.0" step="0.05" value="1.0">
+                <span class="range-val" id="lineLengthVal">100%</span>
+              </div>
+              <div class="hint">Shorten the line to cover a single lane instead of the full frame width/height.</div>
+            </div>
+
+            <div class="field">
+              <label>Counting line orientation</label>
+              <div class="radio-row">
+                <label class="radio-opt checked" data-val="horizontal">
+                  <input type="radio" name="axis" value="horizontal" checked> Horizontal
+                </label>
+                <label class="radio-opt" data-val="vertical">
+                  <input type="radio" name="axis" value="vertical"> Vertical
+                </label>
+              </div>
+              <div class="hint">Line is drawn across the mid-width or mid-height of the frame.</div>
+            </div>
+
+            <div class="field">
+              <label>Processing speed</label>
+              <div class="radio-row">
+                <label class="radio-opt" data-val="320">
+                  <input type="radio" name="speed" value="320"> Faster
+                </label>
+                <label class="radio-opt checked" data-val="480">
+                  <input type="radio" name="speed" value="480" checked> Balanced
+                </label>
+                <label class="radio-opt" data-val="640">
+                  <input type="radio" name="speed" value="640"> Sharp
+                </label>
+              </div>
+              <div class="hint">Faster processing; slightly less accurate on small or distant vehicles.</div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Result card -->
+        <div class="card">
+          <h2><span class="eyebrow">02</span>Result</h2>
+          <div id="resultEmpty" class="result-empty">Processed footage and the crossing log will appear here once a job completes.</div>
+
+          <div id="resultPreview" style="display:none;">
+            <div class="live-stage">
+              <img class="live-video" id="previewImg" alt="Live processing preview">
+              <div class="live-badge running"><span class="dot"></span>PROCESSING</div>
+            </div>
+            <div class="empty-note" style="margin-top:10px;">Live preview of the frame currently being processed — this is not the final output resolution/framerate.</div>
+          </div>
+
+          <div id="resultBody" style="display:none;">
+            <video class="result-video" id="resultVideo" controls></video>
+            <div class="empty-note" id="resultNote" style="display:none; color: var(--amber);"></div>
+            <div class="result-counts">
+              <div class="count-pill in"><span class="lbl">TOTAL IN</span><span class="val" id="resultIn">0</span></div>
+              <div class="count-pill out"><span class="lbl">TOTAL OUT</span><span class="val" id="resultOut">0</span></div>
+            </div>
+            <div class="result-actions">
+              <a class="btn btn-ghost" id="downloadVideo" href="#" download>Download video</a>
+              <a class="btn btn-ghost" id="downloadCsv" href="#" download>Download CSV log</a>
+            </div>
+          </div>
+
+          <div class="process-controls">
+            <button type="submit" form="uploadForm" class="btn btn-primary" id="submitBtn" disabled>Process video</button>
+            <div class="status-line" id="jobStatusLine" style="display:none;">
+              <span class="status-dot" id="jobStatusDot"></span>
+              <span id="jobStatusText">Queued…</span>
+            </div>
+            <div class="progress-wrap" id="progressWrap" style="display:none;">
+              <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+              <div class="progress-meta"><span id="progressPct">0%</span><span id="progressFrames">0 / 0 frames</span></div>
+              <button type="button" class="btn btn-danger" id="jobStopBtn" style="width:100%; margin-top:12px; display:none;">■ Stop processing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live view -->
+    <section class="view" id="view-live">
+      <div class="hero">
+        <div class="hero-top">
+          <div>
+            <h1>Live counting feed</h1>
+            <p>Point the app at a webcam attached to this machine, or an RTSP camera on your network, and watch the tally update in real time.</p>
+          </div>
+          <div class="hero-counters">
+            <div class="count-pill in"><span class="lbl">IN</span><span class="val" id="liveHeroIn">0</span></div>
+            <div class="count-pill out"><span class="lbl">OUT</span><span class="val" id="liveHeroOut">0</span></div>
+          </div>
+        </div>
+        <div class="scanline-track"></div>
+        <div class="scanline-caption"><span id="liveCaptionLeft">NO SOURCE CONNECTED</span><span>COUNTING LINE ACTIVE</span></div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2><span class="eyebrow">01</span>Source</h2>
+
+          <div class="field" style="margin-top:0;">
+            <label>Camera type</label>
+            <div class="radio-row">
+              <label class="radio-opt checked" data-val="webcam">
+                <input type="radio" name="liveSrcType" value="webcam" checked> Webcam
+              </label>
+              <label class="radio-opt" data-val="rtsp">
+                <input type="radio" name="liveSrcType" value="rtsp"> RTSP / IP camera
+              </label>
+            </div>
+          </div>
+
+          <div class="field" id="webcamField">
+            <label for="webcamIndex">Device index</label>
+            <input type="text" id="webcamIndex" value="0">
+            <div class="hint">0 is usually the machine's default camera.</div>
+          </div>
+
+          <div class="field" id="rtspField" style="display:none;">
+            <label for="rtspUrl">Stream URL</label>
+            <input type="text" id="rtspUrl" placeholder="rtsp://user:pass@192.168.1.20:554/stream1">
+          </div>
+
+          <div class="field">
+            <label for="liveConfRange">Detection confidence</label>
+            <div class="range-row">
+              <input type="range" id="liveConfRange" min="0.1" max="0.9" step="0.05" value="0.4">
+              <span class="range-val" id="liveConfVal">0.40</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="liveLineLengthRange">Counting line length</label>
+            <div class="range-row">
+              <input type="range" id="liveLineLengthRange" min="0.1" max="1.0" step="0.05" value="1.0">
+              <span class="range-val" id="liveLineLengthVal">100%</span>
+            </div>
+            <div class="hint">Shorten the line to cover a single lane instead of the full frame width/height.</div>
+          </div>
+
+          <div class="field">
+            <label>Counting line orientation</label>
+            <div class="radio-row">
+              <label class="radio-opt checked" data-val="horizontal">
+                <input type="radio" name="liveAxis" value="horizontal" checked> Horizontal
+              </label>
+              <label class="radio-opt" data-val="vertical">
+                <input type="radio" name="liveAxis" value="vertical"> Vertical
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Processing speed</label>
+            <div class="radio-row">
+              <label class="radio-opt checked" data-val="320">
+                <input type="radio" name="liveSpeed" value="320" checked> Fast
+              </label>
+              <label class="radio-opt" data-val="480">
+                <input type="radio" name="liveSpeed" value="480"> Balanced
+              </label>
+              <label class="radio-opt" data-val="640">
+                <input type="radio" name="liveSpeed" value="640"> Sharp
+              </label>
+            </div>
+            <div class="hint">Fast is recommended for live streams so the feed keeps up.</div>
+          </div>
+
+          <button class="btn btn-primary" id="liveStartBtn">Start stream</button>
+          <div class="status-line" id="liveStatusLine" style="display:none;">
+            <span class="status-dot" id="liveStatusDot"></span>
+            <span id="liveStatusText">—</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span class="eyebrow">02</span>Preview</h2>
+          <div class="live-stage" id="liveStage">
+            <div class="live-placeholder">Start a stream to see the annotated feed here.</div>
+          </div>
+          <div class="live-controls">
+            <button class="btn btn-rec" id="liveRecBtn" disabled>● Record</button>
+            <button class="btn btn-danger" id="liveStopBtn" disabled>Stop stream</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Archive view -->
+    <section class="view" id="view-archive">
+      <div class="archive-head">
+        <div>
+          <h1>Job Archive</h1>
+          <p>Review completed, partial, and cancelled jobs. Filter, sort, and export past results.</p>
+        </div>
+        <div class="archive-stats">
+          <div class="stat-chip"><span class="lbl">Jobs</span><span class="val" id="archiveStatJobs">0</span></div>
+          <div class="stat-chip"><span class="lbl">Vehicles counted</span><span class="val" id="archiveStatVehicles">0</span></div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-field">
+          <label for="filterDateFrom">From</label>
+          <input type="date" id="filterDateFrom">
+        </div>
+        <div class="filter-field">
+          <label for="filterDateTo">To</label>
+          <input type="date" id="filterDateTo">
+        </div>
+        <div class="filter-field">
+          <label for="filterStatus">Status</label>
+          <select id="filterStatus">
+            <option value="all">All</option>
+            <option value="complete">Completed</option>
+            <option value="partial">Partial</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <div class="filter-field grow">
+          <label for="filterSource">Source / filename</label>
+          <input type="text" id="filterSource" placeholder="Search by filename…">
+        </div>
+        <button class="btn btn-ghost" id="filterReset" type="button">Reset filters</button>
+      </div>
+
+      <div class="archive-table-wrap">
+        <table class="archive-table" id="archiveTable">
+          <thead>
+            <tr>
+              <th class="expand-col"></th>
+              <th data-sort="filename">Job<span class="sort-arrow"></span></th>
+              <th data-sort="created_at">Date<span class="sort-arrow"></span></th>
+              <th data-sort="duration_seconds">Duration<span class="sort-arrow"></span></th>
+              <th data-sort="total_count">Total count<span class="sort-arrow"></span></th>
+              <th>Class breakdown</th>
+              <th data-sort="display_status">Status<span class="sort-arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="archiveTableBody"></tbody>
+        </table>
+        <div class="empty-note" id="archiveEmpty" style="display:none;">No jobs match these filters.</div>
+      </div>
+    </section>
+
+    <footer class="page-footer">BRIGHT NODE / CAR-COUNTER-APP — powered by YOLOv8 + ByteTrack, served locally</footer>
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

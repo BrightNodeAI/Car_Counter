@@ -1,0 +1,176 @@
+/* BrightNode Car Counter — theme tokens
+   Apply by setting data-theme="midnight|studio|terracotta|amber|pastel"
+   on <html> or <body>. Persist the choice (e.g. localStorage + a hidden
+   input, or a cookie read server-side in Flask) so the right theme is
+   applied on first paint. Default theme: midnight. */
+
+:root,
+[data-theme="midnight"] {
+  --font-header: 'Space Grotesk', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --page-bg: #0b0f14;
+  --sidebar-bg: #0b0f14;
+  --main-bg: #0e141b;
+  --card-bg: #10171f;
+  --border: rgba(255,255,255,.08);
+
+  --text-primary: #e6edf3;
+  --text-secondary: #8a99a8;
+  --text-muted: #5b6b7a;
+
+  --accent: #2dd4bf;
+  --accent-soft-bg: rgba(45,212,191,.12);
+  --accent-text: #06181a;
+
+  --in-color: #2dd4bf;   --in-bg: #0f2a26;   --in-border: rgba(45,212,191,.3);
+  --out-color: #f59e0b;  --out-bg: #2a1f0f;  --out-border: rgba(245,158,11,.3);
+
+  --card-radius: 10px;
+  --chip-radius: 8px;
+  --pill-radius: 6px;
+  --nav-radius: 6px;
+  --logo-radius: 7px;
+
+  --dash-border: rgba(255,255,255,.18);
+  --inactive-bg: rgba(255,255,255,.03);
+  --inactive-border: rgba(255,255,255,.12);
+  --inactive-text: #8a99a8;
+}
+
+[data-theme="studio"] {
+  --font-header: 'Sora', sans-serif;
+  --font-body: system-ui, sans-serif;
+  --font-mono: system-ui, sans-serif;
+
+  --page-bg: #ffffff;
+  --sidebar-bg: #f8f9fc;
+  --main-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border: rgba(15,23,42,.08);
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --accent: #4f46e5;
+  --accent-soft-bg: #eef2ff;
+  --accent-text: #ffffff;
+
+  --in-color: #16a34a;  --in-bg: #f0fdf4;  --in-border: #bbf7d0;
+  --out-color: #e11d48; --out-bg: #fff1f2; --out-border: #fecdd3;
+
+  --card-radius: 12px;
+  --chip-radius: 10px;
+  --pill-radius: 8px;
+  --nav-radius: 8px;
+  --logo-radius: 8px;
+
+  --dash-border: rgba(79,70,229,.3);
+  --inactive-bg: #f8fafc;
+  --inactive-border: rgba(15,23,42,.1);
+  --inactive-text: #64748b;
+}
+
+[data-theme="terracotta"] {
+  --font-header: 'Newsreader', serif;
+  --font-body: system-ui, sans-serif;
+  --font-mono: system-ui, sans-serif;
+
+  --page-bg: #faf6f0;
+  --sidebar-bg: #f3ece2;
+  --main-bg: #faf6f0;
+  --card-bg: #fffdfa;
+  --border: rgba(60,40,20,.12);
+
+  --text-primary: #2b241d;
+  --text-secondary: #8a7a68;
+  --text-muted: #a8957e;
+
+  --accent: #c1552c;
+  --accent-soft-bg: #fbeae1;
+  --accent-text: #fff8f2;
+
+  --in-color: #6b7a4f;  --in-bg: #eef1e6;  --in-border: #d3dbc0;
+  --out-color: #c1552c; --out-bg: #fbeae1; --out-border: #edc9b4;
+
+  --card-radius: 8px;
+  --chip-radius: 8px;
+  --pill-radius: 6px;
+  --nav-radius: 6px;
+  --logo-radius: 50%;
+
+  --dash-border: rgba(193,85,44,.4);
+  --inactive-bg: #f6f1e9;
+  --inactive-border: rgba(60,40,20,.12);
+  --inactive-text: #8a7a68;
+}
+
+[data-theme="amber"] {
+  --font-header: 'IBM Plex Sans Condensed', sans-serif;
+  --font-body: 'IBM Plex Sans Condensed', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --page-bg: #0a0a08;
+  --sidebar-bg: #0d0c08;
+  --main-bg: #0a0a08;
+  --card-bg: #100f0a;
+  --border: rgba(245,179,28,.15);
+
+  --text-primary: #f2ede0;
+  --text-secondary: #9a9584;
+  --text-muted: #6b6759;
+
+  --accent: #f5b31c;
+  --accent-soft-bg: rgba(245,179,28,.15);
+  --accent-text: #0a0a08;
+
+  --in-color: #f5b31c;  --in-bg: #151006;  --in-border: rgba(245,179,28,.35);
+  --out-color: #e5484d; --out-bg: #1a0d0d; --out-border: rgba(229,72,77,.35);
+
+  --card-radius: 0px;
+  --chip-radius: 0px;
+  --pill-radius: 0px;
+  --nav-radius: 0px;
+  --logo-radius: 0px;
+
+  --dash-border: rgba(245,179,28,.3);
+  --inactive-bg: #171610;
+  --inactive-border: rgba(245,179,28,.15);
+  --inactive-text: #8f8b7c;
+}
+
+[data-theme="pastel"] {
+  --font-header: 'Quicksand', sans-serif;
+  --font-body: 'Quicksand', sans-serif;
+  --font-mono: 'Quicksand', sans-serif;
+
+  --page-bg: #ffffff;
+  --sidebar-bg: #f3f0fb;
+  --main-bg: #ffffff;
+  --card-bg: #fdfcff;
+  --border: rgba(90,70,150,.1);
+
+  --text-primary: #3d3557;
+  --text-secondary: #948bb3;
+  --text-muted: #a79fc4;
+
+  --accent: #8b5cf6;
+  --accent-soft-bg: #f1e9ff;
+  --accent-text: #ffffff;
+
+  --in-color: #0d9668;  --in-bg: #e8fbf3;  --in-border: #b8f0d8;
+  --out-color: #fb7185; --out-bg: #fff0f2; --out-border: #ffd0d6;
+
+  --card-radius: 18px;
+  --chip-radius: 14px;
+  --pill-radius: 12px;
+  --nav-radius: 14px;
+  --logo-radius: 10px;
+
+  --dash-border: #d3c4f7;
+  --inactive-bg: #f9f8fc;
+  --inactive-border: rgba(90,70,150,.12);
+  --inactive-text: #948bb3;
+}

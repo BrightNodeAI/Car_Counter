@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bright Node — Car Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7FA;
+    --panel:#FFFFFF;
+    --panel-2:#EEF2F7;
+    --line:#DFE5EC;
+    --blue:#2563EB;
+    --blue-dim:#1D4ED8;
+    --blue-light:#EFF4FE;
+    --teal:#0EA5A5;
+    --red:#DC2626;
+    --text:#1A2230;
+    --muted:#6B7686;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    height:100vh;
+    display:flex;
+    overflow:hidden;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:180px;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    padding:28px 20px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:40px;}
+  .brand-mark{
+    width:24px;height:24px;
+    border:2px solid var(--blue);
+    border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--blue);font-weight:700;font-size:12px;
+  }
+  .brand-name{font-family:'Space Grotesk';font-weight:600;font-size:14px;}
+  .brand-name span{color:var(--blue);}
+
+  .job-item{
+    padding:11px 0;
+    font-size:13px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+  }
+  .job-item.active{color:var(--text);font-weight:600;}
+  .job-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .job-dot.idle{background:var(--line);}
+
+  .sidebar-footer{
+    margin-top:auto;
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+
+  /* MAIN */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 32px;
+    flex-shrink:0;
+  }
+  .topbar-title{font-family:'Space Grotesk';font-size:15px;font-weight:600;color:var(--text);}
+  .topbar-sub{font-size:12px;color:var(--muted);margin-left:10px;}
+  .status-pill{
+    display:flex;align-items:center;gap:6px;
+    font-size:12px;
+    color:var(--teal);
+    font-weight:500;
+  }
+  .status-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+
+  .content{flex:1;display:flex;overflow:hidden;padding:0 32px 32px;gap:28px;}
+
+  /* FEED */
+  .feed-area{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .feed-frame{
+    flex:1;
+    background:linear-gradient(135deg,#1E293B 0%,#0F172A 65%,#0A101E 100%);
+    border-radius:14px;
+    border:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .road{
+    position:absolute;left:8%;right:8%;top:20%;bottom:10%;
+    background:linear-gradient(180deg, rgba(80,95,120,0.4), rgba(20,28,42,0.85));
+    clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  }
+  .count-line{
+    position:absolute;left:12%;right:12%;top:62%;height:2px;
+    background:var(--blue);box-shadow:0 0 8px var(--blue);
+  }
+  .bbox{
+    position:absolute;border:2px solid var(--teal);border-radius:3px;
+  }
+  .bbox .tag{
+    position:absolute;top:-20px;left:0;
+    background:var(--teal);color:#04141f;
+    font-family:'JetBrains Mono';font-size:10px;font-weight:700;
+    padding:1px 6px;border-radius:3px;white-space:nowrap;
+  }
+  .bbox.blue{border-color:var(--blue);}
+  .bbox.blue .tag{background:var(--blue);color:#fff;}
+  .feed-hud{position:absolute;top:16px;left:16px;display:flex;gap:8px;}
+  .hud-chip{
+    background:rgba(255,255,255,0.12);
+    border-radius:6px;padding:4px 10px;
+    font-family:'JetBrains Mono';font-size:11px;color:#DCE3EE;
+  }
+  .hud-chip.rec{color:#FCA5A5;}
+  .hud-chip.rec .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#EF4444;margin-right:5px;}
+
+  .feed-controls{
+    display:flex;align-items:center;gap:16px;
+    padding-top:20px;
+  }
+  .btn{
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:13px;font-weight:500;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
+  .btn-danger{color:var(--red);border-color:transparent;background:transparent;}
+  .progress-wrap{flex:1;}
+  .progress-bar{height:4px;background:var(--line);border-radius:3px;overflow:hidden;}
+  .progress-fill{height:100%;width:64%;background:var(--blue);}
+  .progress-labels{
+    display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono';font-size:11px;color:var(--muted);margin-top:8px;
+  }
+
+  /* RAIL */
+  .rail{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:28px;overflow-y:auto;padding-top:4px;}
+
+  .count-hero{text-align:center;padding:20px 0;background:var(--blue-light);border-radius:14px;}
+  .count-number{
+    font-family:'JetBrains Mono';font-weight:700;
+    font-size:52px;color:var(--blue-dim);letter-spacing:1px;
+    line-height:1;
+  }
+  .count-label{font-size:12px;color:var(--muted);margin-top:8px;}
+
+  .rail-title{
+    font-size:11px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:1px;margin-bottom:16px;font-weight:600;
+  }
+
+  .slider-row{margin-bottom:22px;}
+  .slider-row:last-child{margin-bottom:0;}
+  .slider-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px;}
+  .slider-val{font-family:'JetBrains Mono';color:var(--blue-dim);}
+  input[type=range]{
+    width:100%;height:3px;-webkit-appearance:none;
+    background:var(--line);border-radius:2px;outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+    background:var(--blue);cursor:pointer;
+  }
+
+  .disclosure{
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+  .disclosure-head{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:13px;color:var(--muted);cursor:pointer;
+  }
+  .disclosure-body{margin-top:18px;display:none;}
+  .disclosure.open .disclosure-body{display:block;}
+  .disclosure.open .chev{transform:rotate(90deg);}
+  .chev{color:var(--muted);transition:0.15s;font-size:11px;}
+
+  .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:13px;}
+  .switch{width:32px;height:18px;background:var(--line);border-radius:10px;position:relative;flex-shrink:0;}
+  .switch.on{background:var(--blue-dim);}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.2);}
+  .switch.on::after{left:16px;}
+
+  .log-link{
+    font-size:12px;color:var(--blue-dim);
+    display:flex;align-items:center;gap:6px;
+    cursor:pointer;font-weight:500;
+  }
+</style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-name">Bright<span>Node</span></div>
+    </div>
+    <div class="job-item active"><span>Highway_North_Cam3</span><span class="job-dot"></span></div>
+    <div class="job-item"><span>Intersection_5th_Ave</span><span class="job-dot idle"></span></div>
+    <div class="job-item"><span>Depot_Entrance</span><span class="job-dot idle"></span></div>
+    <div class="sidebar-footer">YOLOv8n + ByteTrack<br>CPU inference</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <span class="topbar-title">Highway_North_Cam3</span>
+        <span class="topbar-sub">1920×1080 · 25fps</span>
+      </div>
+      <div class="status-pill"><span class="dot"></span>Running</div>
+    </div>
+
+    <div class="content">
+      <div class="feed-area">
+        <div class="feed-frame">
+          <div class="feed-hud">
+            <div class="hud-chip rec"><span class="dot"></span>LIVE</div>
+            <div class="hud-chip">14.2 fps</div>
+          </div>
+          <div class="road"></div>
+          <div class="count-line"></div>
+          <div class="bbox" style="left:38%;top:34%;width:80px;height:52px;"><div class="tag">car · 0.91</div></div>
+          <div class="bbox blue" style="left:56%;top:46%;width:96px;height:60px;"><div class="tag">truck · 0.87</div></div>
+        </div>
+
+        <div class="feed-controls">
+          <button class="btn btn-primary">⏸ Pause</button>
+          <button class="btn btn-danger">Cancel job</button>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="progress-labels">
+              <span>04:12 elapsed</span>
+              <span>06:30 est.</span>
+            </div>
+          </div>
+          <button class="btn">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="count-hero">
+          <div class="count-number">147</div>
+          <div class="count-label">vehicles crossed line</div>
+        </div>
+
+        <div>
+          <div class="rail-title">Detection</div>
+          <div class="slider-row">
+            <div class="slider-head"><span>Confidence</span><span class="slider-val">0.45</span></div>
+            <input type="range" min="0" max="100" value="45">
+          </div>
+          <div class="slider-row">
+            <div class="slider-head"><span>Count line position</span><span class="slider-val">62%</span></div>
+            <input type="range" min="0" max="100" value="62">
+          </div>
+        </div>
+
+        <div class="disclosure" id="advanced">
+          <div class="disclosure-head" onclick="document.getElementById('advanced').classList.toggle('open')">
+            <span>Advanced settings</span>
+            <span class="chev">▸</span>
+          </div>
+          <div class="disclosure-body">
+            <div class="slider-row">
+              <div class="slider-head"><span>IoU threshold</span><span class="slider-val">0.50</span></div>
+              <input type="range" min="0" max="100" value="50">
+            </div>
+            <div class="toggle-row"><span>Show bounding boxes</span><div class="switch on"></div></div>
+            <div class="toggle-row"><span>Show track IDs</span><div class="switch on"></div></div>
+            <div class="toggle-row"><span>Direction split (in/out)</span><div class="switch"></div></div>
+          </div>
+        </div>
+
+        <div class="log-link">
+          View event log →
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

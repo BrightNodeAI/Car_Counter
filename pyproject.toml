@@ -1,0 +1,33 @@
+[project]
+name = "car-counter"
+version = "0.1.0"
+description = "Bright Node — Car Counter (FastAPI + YOLOv8 + ByteTrack)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "ultralytics>=8.2",
+    "supervision>=0.21",
+    "opencv-python-headless>=4.9",
+    "numpy>=1.26",
+    "pydantic>=2.6",
+    "openvino>=2024.0",
+]
+
+[tool.uv]
+package = false
+# ultralytics/supervision declare the GUI build of OpenCV, but this app is
+# fully headless (frames leave as JPEG/MP4, never cv2.imshow), and the GUI
+# build can't run in slim Docker images. The never-matching marker drops
+# their opencv-python requirement so opencv-python-headless is used everywhere.
+override-dependencies = ["opencv-python; sys_platform == 'never'"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]

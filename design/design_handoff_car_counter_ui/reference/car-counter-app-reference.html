@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0}
+  input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;margin-top:-5px;cursor:pointer}
+  @keyframes bn-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:{{ t.pageBg }};font-family:{{ t.bodyFont }};transition:background .25s ease">
+
+  <div style="display:flex;align-items:center;gap:10px;padding:12px 22px;border-bottom:1px solid {{ t.border }};background:{{ t.sidebarBg }}">
+    <span style="font:600 11px system-ui;letter-spacing:.08em;color:{{ t.textMuted }};margin-right:6px">THEME</span>
+    <sc-for list="{{ themeList }}" as="th" hint-placeholder-count="5">
+      <div onClick="{{ th.select }}" style="cursor:pointer;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font:600 12px system-ui;border:1.5px solid {{ th.borderColor }};background:{{ th.chipBg }};color:{{ th.chipText }}">
+        <span style="width:9px;height:9px;border-radius:50%;background:{{ th.dot }};flex:none"></span>
+        {{ th.name }}
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="flex:1;display:flex">
+    <div style="width:230px;flex:none;background:{{ t.sidebarBg }};border-right:1px solid {{ t.border }};padding:22px 18px;display:flex;flex-direction:column;gap:26px;box-sizing:border-box">
+      <div>
+        <div style="font:600 10px/1 {{ t.monoFont }};letter-spacing:.1em;color:{{ t.textMuted }};margin-bottom:12px">WORKSPACE</div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="3">
+            <div onClick="{{ nav.select }}" style="cursor:pointer;display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:{{ t.navRadius }};background:{{ nav.bg }};color:{{ nav.color }};font:{{ nav.weight }} 13px {{ t.headerFont }}">
+              {{ nav.label }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="font:600 10px/1 {{ t.monoFont }};letter-spacing:.1em;color:{{ t.textMuted }};margin-bottom:10px">RECENT JOBS</div>
+        <div style="font:400 12px/1.5 {{ t.bodyFont }};color:{{ t.textMuted }}">Processed videos will appear here.</div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="border-top:1px solid {{ t.border }};padding-top:14px;display:flex;gap:10px;align-items:center">
+        <div style="width:26px;height:26px;border-radius:{{ t.logoRadius }};background:{{ t.accent }};flex:none"></div>
+        <div>
+          <div style="font:700 13px {{ t.headerFont }};color:{{ t.textPrimary }}">BrightNode</div>
+          <div style="font:500 9px/1.4 {{ t.monoFont }};color:{{ t.textMuted }};letter-spacing:.04em">CAR COUNTING · VIDEO ANALYTICS</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:24px 26px;box-sizing:border-box;color:{{ t.textPrimary }}">
+      <sc-if value="{{ isUploadPage }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid {{ t.border }};padding-bottom:16px;margin-bottom:18px">
+          <div>
+            <div style="font:700 21px {{ t.headerFont }}">Line-crossing vehicle counter</div>
+            <div style="font:400 13px/1.5 {{ t.bodyFont }};color:{{ t.textSecondary }};max-width:520px;margin-top:4px">Upload traffic footage and the pipeline detects, tracks, and tallies every car, truck, and bus that crosses your counting line.</div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <div style="background:{{ t.inBg }};border:1px solid {{ t.inBorder }};border-radius:{{ t.chipRadius }};padding:8px 16px;text-align:center">
+              <div style="font:600 9px {{ t.monoFont }};letter-spacing:.08em;color:{{ t.inColor }}">IN</div>
+              <div style="font:700 18px {{ t.monoFont }};color:{{ t.inColor }}">{{ inCount }}</div>
+            </div>
+            <div style="background:{{ t.outBg }};border:1px solid {{ t.outBorder }};border-radius:{{ t.chipRadius }};padding:8px 16px;text-align:center">
+              <div style="font:600 9px {{ t.monoFont }};letter-spacing:.08em;color:{{ t.outColor }}">OUT</div>
+              <div style="font:700 18px {{ t.monoFont }};color:{{ t.outColor }}">{{ outCount }}</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font:500 11px {{ t.monoFont }};color:{{ t.textMuted }};margin-bottom:16px">
+          <span>FRAME {{ frameLabel }}</span>
+          <span style="color:{{ t.accent }}">● COUNTING LINE ACTIVE</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:18px">
+          <div style="background:{{ t.cardBg }};border:1px solid {{ t.border }};border-radius:{{ t.cardRadius }};padding:20px;box-sizing:border-box">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+              <span style="font:600 10px {{ t.monoFont }};background:{{ t.accentSoftBg }};color:{{ t.accent }};padding:2px 7px;border-radius:4px">01</span>
+              <span style="font:600 15px {{ t.headerFont }}">Source video</span>
+            </div>
+            <div onClick="{{ openFilePicker }}" style="cursor:pointer;border:1px dashed {{ t.dashBorder }};border-radius:{{ t.cardRadius }};padding:28px;text-align:center;margin-bottom:20px">
+              <div style="font:500 13px {{ t.bodyFont }};color:{{ t.textPrimary }}">{{ dropzoneLabel }}</div>
+              <div style="font:400 10.5px {{ t.monoFont }};color:{{ t.textMuted }};margin-top:6px">MP4, MOV, AVI, MKV, WEBM</div>
+            </div>
+            <input ref="{{ fileInputRef }}" type="file" accept="video/*" onChange="{{ onFileChosen }}" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:16px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font:600 12px {{ t.bodyFont }};color:{{ t.textPrimary }};margin-bottom:6px"><span>Detection confidence</span><span style="color:{{ t.accent }}">{{ confidenceLabel }}</span></div>
+                <input type="range" min="0" max="100" value="{{ confidence }}" onChange="{{ onConfidenceChange }}" style="accent-color:{{ t.accent }}">
+              </div>
+              <div>
+                <div style="font:600 12px {{ t.bodyFont }};color:{{ t.textPrimary }};margin-bottom:6px">Duration</div>
+                <input type="range" min="0" max="100" value="{{ durationPct }}" disabled="{{ durationDisabled }}" style="accent-color:{{ t.accent }};opacity:{{ durationOpacity }}">
+                <div style="font:400 11px {{ t.bodyFont }};color:{{ t.textMuted }};margin-top:4px">{{ durationLabel }}</div>
+              </div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="display:flex;justify-content:space-between;font:600 12px {{ t.bodyFont }};color:{{ t.textPrimary }};margin-bottom:6px"><span>Counting line length</span><span style="color:{{ t.accent }}">{{ lineLengthLabel }}</span></div>
+              <input type="range" min="10" max="100" value="{{ lineLength }}" onChange="{{ onLineLengthChange }}" style="accent-color:{{ t.accent }}">
+              <div style="font:400 11px {{ t.bodyFont }};color:{{ t.textMuted }};margin-top:4px">Shorten the line to cover a single lane instead of the full frame width/height.</div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="font:600 12px {{ t.bodyFont }};color:{{ t.textPrimary }};margin-bottom:8px">Counting line orientation</div>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ orientationOptions }}" as="opt" hint-placeholder-count="2">
+                  <div onClick="{{ opt.select }}" style="cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:{{ t.pillRadius }};background:{{ opt.bg }};border:1px solid {{ opt.border }};color:{{ opt.color }};font:{{ opt.weight }} 12px {{ t.bodyFont }}">{{ opt.label }}</div>
+                </sc-for>
+              </div>
+              <div style="font:400 11px {{ t.bodyFont }};color:{{ t.textMuted }};margin-top:4px">Line is drawn across the mid-width or mid-height of the frame.</div>
+            </div>
+            <div>
+              <div style="font:600 12px {{ t.bodyFont }};color:{{ t.textPrimary }};margin-bottom:8px">Processing speed</div>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ speedOptions }}" as="sp" hint-placeholder-count="3">
+                  <div onClick="{{ sp.select }}" style="cursor:pointer;flex:1;text-align:center;padding:8px;border-radius:{{ t.pillRadius }};background:{{ sp.bg }};border:1px solid {{ sp.border }};color:{{ sp.color }};font:{{ sp.weight }} 12px {{ t.bodyFont }}">{{ sp.label }}</div>
+                </sc-for>
+              </div>
+              <div style="font:400 11px {{ t.bodyFont }};color:{{ t.textMuted }};margin-top:4px">Faster processing; slightly less accurate on small or distant vehicles.</div>
+            </div>
+          </div>
+
+          <div style="background:{{ t.cardBg }};border:1px solid {{ t.border }};border-radius:{{ t.cardRadius }};padding:20px;box-sizing:border-box;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+              <span style="font:600 10px {{ t.monoFont }};background:{{ t.accentSoftBg }};color:{{ t.accent }};padding:2px 7px;border-radius:4px">02</span>
+              <span style="font:600 15px {{ t.headerFont }}">Result</span>
+            </div>
+            <div style="flex:1;border:1px dashed {{ t.dashBorder }};border-radius:{{ t.cardRadius }};display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;margin-bottom:16px">
+              <sc-if value="{{ processing }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+                  <div style="width:26px;height:26px;border-radius:50%;border:3px solid {{ t.border }};border-top-color:{{ t.accent }};animation:bn-spin .8s linear infinite"></div>
+                  <div style="font:500 12.5px {{ t.bodyFont }};color:{{ t.textSecondary }}">Processing video…</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ showResult }}" hint-placeholder-val="{{ false }}">
+                <div style="text-align:left;width:100%">
+                  <div style="font:600 13px {{ t.bodyFont }};color:{{ t.textPrimary }};margin-bottom:6px">Job complete — {{ resultFileName }}</div>
+                  <div style="font:400 12px/1.6 {{ t.bodyFont }};color:{{ t.textSecondary }}">{{ inCount }} in · {{ outCount }} out · confidence {{ confidenceLabel }} · {{ speedLabel }} mode</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ true }}">
+                <div style="font:400 12.5px/1.6 {{ t.bodyFont }};color:{{ t.textSecondary }}">Processed footage and the crossing log will appear here once a job completes.</div>
+              </sc-if>
+            </div>
+            <div onClick="{{ onProcessClick }}" style="cursor:pointer;text-align:center;padding:12px;border-radius:{{ t.pillRadius }};background:{{ t.accent }};color:{{ t.accentText }};font:700 14px {{ t.headerFont }}">{{ processButtonLabel }}</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isOtherPage }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:400px">
+          <div style="text-align:center">
+            <div style="font:700 20px {{ t.headerFont }};margin-bottom:8px">{{ otherPageTitle }}</div>
+            <div style="font:400 13px {{ t.bodyFont }};color:{{ t.textSecondary }}">This screen isn't wired up in the reference UI — same shell &amp; theme apply here.</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="margin-top:18px;font:400 10.5px {{ t.monoFont }};color:{{ t.textMuted }}">BRIGHTNODE / CAR-COUNTER-APP — POWERED BY YOLOV8 + BYTETRACK, SERVED LOCALLY</div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const THEMES = {
+  midnight: {
+    name: "Midnight Ops",
+    dot: "#2dd4bf",
+    pageBg: "#0b0f14", sidebarBg: "#0b0f14", mainBg: "#0e141b", cardBg: "#10171f",
+    border: "rgba(255,255,255,.08)", textPrimary: "#e6edf3", textSecondary: "#8a99a8", textMuted: "#5b6b7a",
+    accent: "#2dd4bf", accentSoftBg: "rgba(45,212,191,.12)", accentText: "#06181a",
+    inColor: "#2dd4bf", inBg: "#0f2a26", inBorder: "rgba(45,212,191,.3)",
+    outColor: "#f59e0b", outBg: "#2a1f0f", outBorder: "rgba(245,158,11,.3)",
+    headerFont: "'Space Grotesk',sans-serif", bodyFont: "'Space Grotesk',sans-serif", monoFont: "'JetBrains Mono',monospace",
+    cardRadius: "10px", chipRadius: "8px", pillRadius: "6px", navRadius: "6px", logoRadius: "7px",
+    dashBorder: "rgba(255,255,255,.18)", inactiveBg: "rgba(255,255,255,.03)", inactiveBorder: "rgba(255,255,255,.12)", inactiveText: "#8a99a8"
+  },
+  studio: {
+    name: "Studio Light",
+    dot: "#4f46e5",
+    pageBg: "#ffffff", sidebarBg: "#f8f9fc", mainBg: "#ffffff", cardBg: "#ffffff",
+    border: "rgba(15,23,42,.08)", textPrimary: "#0f172a", textSecondary: "#64748b", textMuted: "#94a3b8",
+    accent: "#4f46e5", accentSoftBg: "#eef2ff", accentText: "#ffffff",
+    inColor: "#16a34a", inBg: "#f0fdf4", inBorder: "#bbf7d0",
+    outColor: "#e11d48", outBg: "#fff1f2", outBorder: "#fecdd3",
+    headerFont: "'Sora',sans-serif", bodyFont: "system-ui,sans-serif", monoFont: "system-ui,sans-serif",
+    cardRadius: "12px", chipRadius: "10px", pillRadius: "8px", navRadius: "8px", logoRadius: "8px",
+    dashBorder: "rgba(79,70,229,.3)", inactiveBg: "#f8fafc", inactiveBorder: "rgba(15,23,42,.1)", inactiveText: "#64748b"
+  },
+  terracotta: {
+    name: "Terracotta Editorial",
+    dot: "#c1552c",
+    pageBg: "#faf6f0", sidebarBg: "#f3ece2", mainBg: "#faf6f0", cardBg: "#fffdfa",
+    border: "rgba(60,40,20,.12)", textPrimary: "#2b241d", textSecondary: "#8a7a68", textMuted: "#a8957e",
+    accent: "#c1552c", accentSoftBg: "#fbeae1", accentText: "#fff8f2",
+    inColor: "#6b7a4f", inBg: "#eef1e6", inBorder: "#d3dbc0",
+    outColor: "#c1552c", outBg: "#fbeae1", outBorder: "#edc9b4",
+    headerFont: "'Newsreader',serif", bodyFont: "system-ui,sans-serif", monoFont: "system-ui,sans-serif",
+    cardRadius: "8px", chipRadius: "8px", pillRadius: "6px", navRadius: "6px", logoRadius: "50%",
+    dashBorder: "rgba(193,85,44,.4)", inactiveBg: "#f6f1e9", inactiveBorder: "rgba(60,40,20,.12)", inactiveText: "#8a7a68"
+  },
+  amber: {
+    name: "Amber Industrial",
+    dot: "#f5b31c",
+    pageBg: "#0a0a08", sidebarBg: "#0d0c08", mainBg: "#0a0a08", cardBg: "#100f0a",
+    border: "rgba(245,179,28,.15)", textPrimary: "#f2ede0", textSecondary: "#9a9584", textMuted: "#6b6759",
+    accent: "#f5b31c", accentSoftBg: "rgba(245,179,28,.15)", accentText: "#0a0a08",
+    inColor: "#f5b31c", inBg: "#151006", inBorder: "rgba(245,179,28,.35)",
+    outColor: "#e5484d", outBg: "#1a0d0d", outBorder: "rgba(229,72,77,.35)",
+    headerFont: "'IBM Plex Sans Condensed',sans-serif", bodyFont: "'IBM Plex Sans Condensed',sans-serif", monoFont: "'IBM Plex Mono',monospace",
+    cardRadius: "0px", chipRadius: "0px", pillRadius: "0px", navRadius: "0px", logoRadius: "0px",
+    dashBorder: "rgba(245,179,28,.3)", inactiveBg: "#171610", inactiveBorder: "rgba(245,179,28,.15)", inactiveText: "#8f8b7c"
+  },
+  pastel: {
+    name: "Soft Pastel",
+    dot: "#8b5cf6",
+    pageBg: "#ffffff", sidebarBg: "#f3f0fb", mainBg: "#ffffff", cardBg: "#fdfcff",
+    border: "rgba(90,70,150,.1)", textPrimary: "#3d3557", textSecondary: "#948bb3", textMuted: "#a79fc4",
+    accent: "#8b5cf6", accentSoftBg: "#f1e9ff", accentText: "#ffffff",
+    inColor: "#0d9668", inBg: "#e8fbf3", inBorder: "#b8f0d8",
+    outColor: "#fb7185", outBg: "#fff0f2", outBorder: "#ffd0d6",
+    headerFont: "'Quicksand',sans-serif", bodyFont: "'Quicksand',sans-serif", monoFont: "'Quicksand',sans-serif",
+    cardRadius: "18px", chipRadius: "14px", pillRadius: "12px", navRadius: "14px", logoRadius: "10px",
+    dashBorder: "#d3c4f7", inactiveBg: "#f9f8fc", inactiveBorder: "rgba(90,70,150,.12)", inactiveText: "#948bb3"
+  }
+};
+
+const THEME_ORDER = ["midnight", "studio", "terracotta", "amber", "pastel"];
+const NAV_LABELS = ["Upload & Process", "Live Feed", "Job Archive"];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let savedTheme = "midnight";
+    try {
+      const saved = localStorage.getItem("bn-theme");
+      if (saved && THEMES[saved]) savedTheme = saved;
+    } catch (e) {}
+    this.state = {
+      themeKey: savedTheme,
+      activePage: "Upload & Process",
+      confidence: 40,
+      lineLength: 100,
+      orientation: "horizontal",
+      speed: "balanced",
+      fileName: null,
+      processing: false,
+      hasResult: false,
+      inCount: 0,
+      outCount: 0
+    };
+    this.fileInputRef = React.createRef();
+  }
+
+  setTheme(key) {
+    this.setState({ themeKey: key });
+    try { localStorage.setItem("bn-theme", key); } catch (e) {}
+  }
+
+  renderVals() {
+    const s = this.state;
+    const t = THEMES[s.themeKey];
+
+    const themeList = THEME_ORDER.map(key => {
+      const th = THEMES[key];
+      const active = key === s.themeKey;
+      return {
+        name: th.name,
+        dot: th.dot,
+        borderColor: active ? th.accent : t.border,
+        chipBg: active ? t.accentSoftBg : "transparent",
+        chipText: active ? t.textPrimary : t.textSecondary,
+        select: () => this.setTheme(key)
+      };
+    });
+
+    const navItems = NAV_LABELS.map(label => {
+      const active = label === s.activePage;
+      return {
+        label,
+        bg: active ? t.accentSoftBg : "transparent",
+        color: active ? t.accent : t.textSecondary,
+        weight: active ? 600 : 500,
+        select: () => this.setState({ activePage: label })
+      };
+    });
+
+    const orientationOptions = ["Horizontal", "Vertical"].map(label => {
+      const key = label.toLowerCase();
+      const active = key === s.orientation;
+      return {
+        label,
+        bg: active ? t.accentSoftBg : t.inactiveBg,
+        border: active ? t.accent : t.inactiveBorder,
+        color: active ? t.accent : t.inactiveText,
+        weight: active ? 700 : 500,
+        select: () => this.setState({ orientation: key })
+      };
+    });
+
+    const speedOptions = ["Faster", "Balanced", "Sharp"].map(label => {
+      const key = label.toLowerCase();
+      const active = key === s.speed;
+      return {
+        label,
+        bg: active ? t.accentSoftBg : t.inactiveBg,
+        border: active ? t.accent : t.inactiveBorder,
+        color: active ? t.accent : t.inactiveText,
+        weight: active ? 700 : 500,
+        select: () => this.setState({ speed: key })
+      };
+    });
+
+    return {
+      t,
+      themeList,
+      navItems,
+      isUploadPage: s.activePage === "Upload & Process",
+      isOtherPage: s.activePage !== "Upload & Process",
+      otherPageTitle: s.activePage,
+      inCount: s.inCount,
+      outCount: s.outCount,
+      frameLabel: s.processing ? "0142" : "0000",
+      confidence: s.confidence,
+      confidenceLabel: (s.confidence / 100).toFixed(2),
+      lineLength: s.lineLength,
+      lineLengthLabel: s.lineLength + "%",
+      onConfidenceChange: (e) => this.setState({ confidence: Number(e.target.value) }),
+      onLineLengthChange: (e) => this.setState({ lineLength: Number(e.target.value) }),
+      orientationOptions,
+      speedOptions,
+      speedLabel: s.speed,
+      dropzoneLabel: s.fileName ? s.fileName : "Drop a video or click to browse",
+      fileInputRef: this.fileInputRef,
+      openFilePicker: () => this.fileInputRef.current && this.fileInputRef.current.click(),
+      onFileChosen: (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (f) this.setState({ fileName: f.name, hasResult: false });
+      },
+      durationDisabled: !s.fileName,
+      durationOpacity: s.fileName ? 1 : 0.5,
+      durationPct: s.fileName ? 62 : 0,
+      durationLabel: s.fileName ? "0:47 detected from file" : "Select a video to set this.",
+      processing: s.processing,
+      showResult: s.hasResult && !s.processing,
+      showEmpty: !s.hasResult && !s.processing,
+      resultFileName: s.fileName || "clip.mp4",
+      processButtonLabel: s.processing ? "Processing…" : "Process video",
+      onProcessClick: () => {
+        if (s.processing) return;
+        this.setState({ processing: true, hasResult: false });
+        setTimeout(() => {
+          this.setState({
+            processing: false,
+            hasResult: true,
+            inCount: Math.floor(Math.random() * 20) + 5,
+            outCount: Math.floor(Math.random() * 20) + 5
+          });
+        }, 1400);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

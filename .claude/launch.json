@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "car-counter",
+      "runtimeExecutable": "C:\\Users\\Dell\\OneDrive\\Documents\\CarCounterFASTAPI\\.venv\\Scripts\\uvicorn.exe",
+      "runtimeArgs": ["app.main:app", "--port", "8000"],
+      "port": 8000
+    }
+  ]
+}
