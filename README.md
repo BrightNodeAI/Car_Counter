@@ -4,7 +4,11 @@
 
 Car Counter wraps a YOLOv8 + ByteTrack detection/tracking pipeline in a browser UI. Point it at an uploaded video or a live camera/RTSP feed, draw a counting line, and get real-time IN/OUT tallies for cars, trucks, buses, and motorcycles — no cloud services, no external database, everything runs locally.
 
-![Car Counter dashboard](screenshots/dashboard.png)
+| Upload & Process | Live Feed | Job Archive |
+|---|---|---|
+| ![Upload & Process tab](screenshots/upload-tab.jpg) | ![Live Feed tab](screenshots/live-feed-tab.jpg) | ![Job Archive tab](screenshots/job-archive-tab.jpg) |
+
+The UI ships with five selectable themes (Midnight, Studio, Terracotta, Amber, Pastel) shown above.
 
 ## Features
 
@@ -99,12 +103,4 @@ CarCounterFASTAPI/
 - **Webcam in Live Feed** opens a camera attached to the machine running `uvicorn`, not the viewer's browser camera.
 - **RTSP** sources are opened the same way OpenCV opens them from the command line.
 - **Browser playback** — if `ffmpeg` isn't on `PATH`, the raw `mp4v` output still downloads fine but may not preview inline in some browsers. Installing `ffmpeg` (e.g. https://www.gyan.dev/ffmpeg/builds/) enables automatic H.264 transcoding.
-- **Docker** — a `Dockerfile` is included; RTSP-only deployment in a container is straightforward, while webcam access needs a device passed into the container.
-
-## Tech stack
-
-FastAPI · Uvicorn · OpenCV · Ultralytics YOLOv8 · ByteTrack (via `supervision`) · Vanilla JS/HTML/CSS · uv
-
-## License
-
-MIT © BrightNode
+- **Docker** — a `Dockerfile` is included; RTSP-onl
