@@ -14,12 +14,11 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev
 
-# Bake weights: app/pipeline.py auto-prefers the OpenVINO export when present
-COPY yolov8n.pt ./
-COPY yolov8n_openvino_model ./yolov8n_openvino_model
 COPY app ./app
 COPY static ./static
 
-EXPOSE 8000
-# Webcam capture is unavailable inside Docker Desktop; use uploads or RTSP.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# yolov8n.pt is not baked into the image (it's gitignored) — ultralytics
+# downloads it automatically on first inference call, and app/pipeline.py
+# will auto-prefer a '<stem>_openvino_model' export next to it if one is
+# ever added. First request after a cold start will be a few seconds slower
+# while the
