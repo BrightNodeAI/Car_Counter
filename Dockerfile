@@ -22,4 +22,9 @@ COPY static ./static
 # will auto-prefer a '<stem>_openvino_model' export next to it if one is
 # ever added. First request after a cold start will be a few seconds slower
 # while the weights download.
-RUN mkdir -p uploads ou
+RUN mkdir -p uploads outputs
+
+EXPOSE 8000
+# Webcam capture is unavailable inside Docker Desktop; use uploads or RTSP.
+# Railway (and similar platforms) inject $PORT; default to 8000 for plain `docker run`.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
