@@ -59,3 +59,39 @@ Things that aren't obvious from any single file:
   PATH, jobs transcode the output for in-browser playback; otherwise the mp4v file is
   kept (downloadable but may not preview inline).
 - `design/` holds static HTML dashboard mockups — reference material, not served by the app.
+
+## Deploying to Modal
+
+The app is deployed to [Modal](https://modal.com) via `modal_app.py` (repo root), which wraps
+`app.main:app` (the same FastAPI instance used locally) with `@modal.asgi_app()`. Deploy with:
+
+```bash
+uv run python -m modal deploy modal_app.py
+```
+
+The `modal` CLI isn't on PATH on this machine — always invoke it as `python -m modal ...`,
+via `uv run` so it uses the project's venv (`modal` is a `dev` dependency, not a runtime one).
+
+- **Live URL:** https://brightnodeai--car-counter-fastapi-app.modal.run
+- **Dashboard:** https://modal.com/apps/brightnodeai/main/deployed/car-counter
+- **CPU only, no GPU.** yolov8n doesn't need one for this workload. `modal_app.py` builds a
+  custom `modal.Image` (Debian slim + apt packages for opencv/ffmpeg + pip packages mirroring
+  `pyproject.toml`, with CPU-only `torch`/`torchvision` from the pytorch.org CPU index) rather
+  than reusing `Dockerfile` or `uv sync`, so it stays independent of the local CPU-torch index
+  override in `pyproject.toml`'s `[tool.uv.sources]`.
+- **Weights are baked into the image**, not downloaded at cold start: both `yolov8n.pt` and
+  `yolov8n_openvino_model/` are copied to `/root/`, with `CAR_COUNTER_WEIGHTS=/root/yolov8n.pt`
+  set via `.env(...)`. `app/pipeline.py`'s existing OpenVINO auto-preference (see above) picks
+  up `/root/yolov8n_openvino_model/` automatically, so inference runs on OpenVINO, not raw
+  PyTorch — this is what makes CPU-only viable.
+- **`max_containers=1`.** Because job/live-session state is in-memory per-process (see "All
+  state is in-memory" above) with no database, multiple Modal containers would each have their
+  own disjoint state — a status poll or file download could 404 if routed to a different
+  container than the one that ran the job. Pinning to one container preserves the app's
+  existing single-process assumptions; `@modal.concurrent(max_inputs=20)` still lets that one
+  container serve many simultaneous requests (uploads, polling, MJPEG previews).
+- **No auth, one shared job list.** Same as the original local single-user design, but now
+  reachable by anyone with the URL — any visitor can see and delete any other visitor's jobs.
+  Acceptable for a personal/demo deployment; would need auth added before wider sharing.
+- Redeploying rebuilds the image (picks up code, weights, and dependency changes); there's no
+  separate "push weights" step.
